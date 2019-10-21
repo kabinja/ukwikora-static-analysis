@@ -1,16 +1,16 @@
 package org.ukwikora.staticanalysis.model;
 
 import org.hibernate.annotations.UpdateTimestamp;
+import org.ukwikora.gitloader.Api;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "strategies")
 public class Strategy {
-    public enum Type{
-        Local, Gitlab, Git
+    public enum Fetch{
+        ByGroup, ByUserName, ByUrl
     }
 
     @Id
@@ -18,11 +18,16 @@ public class Strategy {
     private Long id;
     @Column(unique = true, nullable = false)
     private String name;
+    @Column
+    private Api api;
     @Column(nullable = false)
-    private Type type;
-    @ElementCollection
-    @CollectionTable(name="project_locations")
-    private List<String> projectLocations;
+    private Fetch fetch;
+    @Column(nullable = false)
+    private String url;
+    @Column
+    private String token;
+    @Column
+    private String username;
     @Column
     private String groupName;
     @UpdateTimestamp
@@ -36,12 +41,24 @@ public class Strategy {
         return name;
     }
 
-    public Type getType() {
-        return type;
+    public Api getApi() {
+        return api;
     }
 
-    public List<String> getProjectLocations() {
-        return projectLocations;
+    public Fetch getFetch() {
+        return fetch;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getToken() {
+        return this.token;
+    }
+
+    public String getUsername(){
+        return username;
     }
 
     public String getGroupName() {
