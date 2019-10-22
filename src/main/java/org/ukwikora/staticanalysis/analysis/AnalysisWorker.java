@@ -5,6 +5,7 @@ import org.ukwikora.gitloader.GitEngine;
 import org.ukwikora.gitloader.GitEngineFactory;
 import org.ukwikora.model.Project;
 import org.ukwikora.staticanalysis.model.Strategy;
+import org.ukwikora.staticanalysis.monitoring.State;
 
 import java.io.File;
 import java.util.List;
@@ -12,35 +13,38 @@ import java.util.Set;
 
 public class AnalysisWorker implements Runnable {
     private final AnalysisServiceImpl service;
-    private final Strategy strategy;
+    private Strategy strategy;
 
-    AnalysisWorker(AnalysisServiceImpl service, Strategy strategy) {
+    AnalysisWorker(AnalysisServiceImpl service) {
         this.service = service;
-        this.strategy = strategy;
     }
 
     @Override
     public void run() {
         try{
-            service.updateState(StatusMonitor.State.Cloning);
-            Set<File> location = getLocation(this.strategy);
-            service.updateState(StatusMonitor.State.Analyzing);
+            service.updateState(State.Cloning);
+            Set<File> location = cloneProjects();
+            service.updateState(State.Analyzing);
             List<Project> projects = Builder.build(location, true);
-            service.updateState(StatusMonitor.State.Saving);
+            service.updateState(State.Saving);
             this.service.update(projects);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        finally {
+            service.updateState(State.Ready);
+        }
     }
 
-    private Set<File> getLocation(final Strategy strategy) throws Exception {
+    private Set<File> cloneProjects() throws Exception {
         Set<File> locations;
 
         final GitEngine git = GitEngineFactory.create(strategy.getApi());
-        git.setUrl(strategy.getUrl()).setToken(strategy.getToken());
+        git.setUrl(strategy.getUrl());
+        git.setToken(strategy.getToken());
 
-        switch (strategy.getFetch()){
+        switch (strategy.getLocator()){
             case ByGroup:
                 locations = git.cloneProjectsFromGroup(strategy.getGroupName());
                 break;
@@ -53,5 +57,9 @@ public class AnalysisWorker implements Runnable {
         }
 
         return locations;
+    }
+
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 }

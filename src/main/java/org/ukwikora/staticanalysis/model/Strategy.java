@@ -5,32 +5,36 @@ import org.ukwikora.gitloader.Api;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "strategies")
 public class Strategy {
-    public enum Fetch{
+    public enum Locator {
         ByGroup, ByUserName, ByUrl
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(unique = true, nullable = false)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
-    @Column
+    @Column(name= "api", nullable = false)
     private Api api;
-    @Column(nullable = false)
-    private Fetch fetch;
+    @Column(name = "locator", nullable = false)
+    private Locator locator;
     @Column(nullable = false)
     private String url;
-    @Column
+    @Column(name = "token")
     private String token;
-    @Column
+    @Column(name = "user_name")
     private String username;
-    @Column
+    @Column(name = "group_name")
     private String groupName;
-    @UpdateTimestamp
+    @ElementCollection
+    @CollectionTable(name = "project_names")
+    private List<String> projectNames;
+    @UpdateTimestamp()
     private Date activation;
 
     public Long getId() {
@@ -45,8 +49,8 @@ public class Strategy {
         return api;
     }
 
-    public Fetch getFetch() {
-        return fetch;
+    public Locator getLocator() {
+        return locator;
     }
 
     public String getUrl() {
