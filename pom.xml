@@ -15,8 +15,8 @@
     <description>Service running a static analysis from a source and storing the results in a database</description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <projectEntity.build.sourceEncoding>UTF-8</projectEntity.build.sourceEncoding>
+        <projectEntity.reporting.outputEncoding>UTF-8</projectEntity.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
 
@@ -60,19 +60,13 @@
             <artifactId>ukwikora-core</artifactId>
             <version>0.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
 
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.4.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

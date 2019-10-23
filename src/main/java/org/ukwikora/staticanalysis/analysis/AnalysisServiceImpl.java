@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ukwikora.model.Project;
 import org.ukwikora.staticanalysis.model.ProjectRepository;
-import org.ukwikora.staticanalysis.model.Strategy;
+import org.ukwikora.staticanalysis.model.StrategyEntity;
 import org.ukwikora.staticanalysis.monitoring.State;
 import org.ukwikora.staticanalysis.monitoring.StatusMonitor;
 
@@ -32,10 +32,10 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     @Override
-    public State analyze(Strategy strategy) {
+    public State analyze(StrategyEntity strategyEntity) {
         if(monitor.isReady()){
             monitor.setState(State.Running);
-            this.worker.setStrategy(strategy);
+            this.worker.setStrategyEntity(strategyEntity);
             Thread thread = new Thread(this.worker, "Analysis");
             thread.start();
         }
@@ -45,8 +45,19 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     public void update(List<Project> projects) {
-        logger.info(projects.size());
-        updateState(State.Ready);
+        logger.info("Number of projects analyzed: " + projects.size());
+
+        for(Project project: projects){
+            final String gitUrl = project.getGitUrl();
+            final String localFolder = project.getRootFolder().getAbsolutePath();
+            final String commitId = project.getCommitId();
+            final String date = project.getDate().toString();
+
+            logger.info(gitUrl);
+            logger.info(localFolder);
+            logger.info(commitId);
+            logger.info(date);
+        }
     }
 
     void updateState(State state){

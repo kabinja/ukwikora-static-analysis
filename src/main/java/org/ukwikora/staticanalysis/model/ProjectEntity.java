@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "projects")
-public class Project {
+public class ProjectEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long id;
@@ -15,7 +15,7 @@ public class Project {
     @Column(name = "url")
     private String url;
 
-    public Project(String name, String slug){
+    public ProjectEntity(String name, String slug){
         this.name = name;
         this.slug = slug;
     }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "strategies")
-public class Strategy {
+public class StrategyEntity {
     public enum Locator {
         ByGroup, ByUserName, ByUrl
     }

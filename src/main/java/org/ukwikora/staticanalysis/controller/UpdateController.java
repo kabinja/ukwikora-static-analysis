@@ -3,7 +3,7 @@ package org.ukwikora.staticanalysis.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.ukwikora.staticanalysis.analysis.AnalysisService;
-import org.ukwikora.staticanalysis.model.Strategy;
+import org.ukwikora.staticanalysis.model.StrategyEntity;
 import org.ukwikora.staticanalysis.model.StrategyRepository;
 import org.ukwikora.staticanalysis.monitoring.State;
 
@@ -24,8 +24,8 @@ public class UpdateController {
 
     @PostMapping("analysis/run")
     public State update(){
-        Strategy strategy = this.strategyRepository.findTopByOrderByActivationDesc();
-        return analysisService.analyze(strategy);
+        StrategyEntity strategyEntity = this.strategyRepository.findTopByOrderByActivationDesc();
+        return analysisService.analyze(strategyEntity);
     }
 
     @GetMapping("analysis/state")
@@ -34,17 +34,17 @@ public class UpdateController {
     }
 
     @GetMapping("analysis/strategies")
-    public List<Strategy> getStrategies(){
+    public List<StrategyEntity> getStrategies(){
         return strategyRepository.findAll();
     }
 
     @GetMapping("analysis/strategies/current")
-    public Strategy getCurrentStrategy(){
+    public StrategyEntity getCurrentStrategy(){
         return strategyRepository.findTopByOrderByActivationDesc();
     }
 
     @PostMapping("analysis/strategy")
-    public Strategy setConfiguration(@Valid @RequestBody Strategy strategy){
-        return strategyRepository.save(strategy);
+    public StrategyEntity setConfiguration(@Valid @RequestBody StrategyEntity strategyEntity){
+        return strategyRepository.save(strategyEntity);
     }
 }

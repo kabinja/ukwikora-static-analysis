@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.ukwikora.staticanalysis.model.Project;
+import org.ukwikora.staticanalysis.model.ProjectEntity;
 import org.ukwikora.staticanalysis.model.ProjectRepository;
 
 import java.util.List;
@@ -20,12 +20,12 @@ public class ProjectController {
     }
 
     @GetMapping("projects")
-    public List<Project> getAllProjects() {
+    public List<ProjectEntity> getAllProjects() {
         return projectRepository.findAll();
     }
 
     @GetMapping("project/{id}")
-    public Optional<Project> getProject(@PathVariable(value = "id") long id) {
+    public Optional<ProjectEntity> getProject(@PathVariable(value = "id") long id) {
         return projectRepository.findById(id);
     }
 }
