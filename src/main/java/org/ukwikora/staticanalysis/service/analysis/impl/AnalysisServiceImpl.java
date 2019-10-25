@@ -1,14 +1,15 @@
-package org.ukwikora.staticanalysis.analysis;
+package org.ukwikora.staticanalysis.service.analysis.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ukwikora.model.Project;
-import org.ukwikora.staticanalysis.model.ProjectRepository;
-import org.ukwikora.staticanalysis.model.StrategyEntity;
+import org.ukwikora.staticanalysis.api.StrategyRest;
+import org.ukwikora.staticanalysis.repository.ProjectRepository;
 import org.ukwikora.staticanalysis.monitoring.State;
 import org.ukwikora.staticanalysis.monitoring.StatusMonitor;
+import org.ukwikora.staticanalysis.service.analysis.AnalysisService;
 
 import java.util.List;
 
@@ -32,10 +33,10 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     @Override
-    public State analyze(StrategyEntity strategyEntity) {
+    public State analyze(StrategyRest rest) {
         if(monitor.isReady()){
             monitor.setState(State.Running);
-            this.worker.setStrategyEntity(strategyEntity);
+            this.worker.setStrategy(rest);
             Thread thread = new Thread(this.worker, "Analysis");
             thread.start();
         }

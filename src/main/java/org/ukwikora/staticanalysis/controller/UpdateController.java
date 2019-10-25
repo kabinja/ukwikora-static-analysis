@@ -2,49 +2,49 @@ package org.ukwikora.staticanalysis.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.ukwikora.staticanalysis.analysis.AnalysisService;
-import org.ukwikora.staticanalysis.model.StrategyEntity;
-import org.ukwikora.staticanalysis.model.StrategyRepository;
+import org.ukwikora.staticanalysis.api.StrategyRest;
+import org.ukwikora.staticanalysis.service.analysis.AnalysisService;
 import org.ukwikora.staticanalysis.monitoring.State;
+import org.ukwikora.staticanalysis.service.analysis.StrategyService;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/analysis")
 public class UpdateController {
-    private final StrategyRepository strategyRepository;
+    private final StrategyService strategyService;
     private final AnalysisService analysisService;
 
     @Autowired
-    public UpdateController(StrategyRepository strategyRepository, AnalysisService analysisService) {
-        this.strategyRepository = strategyRepository;
+    public UpdateController(StrategyService strategyService, AnalysisService analysisService) {
+        this.strategyService = strategyService;
         this.analysisService = analysisService;
     }
 
-    @PostMapping("analysis/run")
-    public State update(){
-        StrategyEntity strategyEntity = this.strategyRepository.findTopByOrderByActivationDesc();
-        return analysisService.analyze(strategyEntity);
+    @PostMapping("/run")
+    public State run(){
+        StrategyRest strategy = this.strategyService.getCurrentStrategy();
+        return analysisService.analyze(strategy);
     }
 
-    @GetMapping("analysis/state")
+    @GetMapping("/state")
     public State getState(){
         return this.analysisService.getState();
     }
 
-    @GetMapping("analysis/strategies")
-    public List<StrategyEntity> getStrategies(){
-        return strategyRepository.findAll();
+    @GetMapping("/strategies")
+    public Set<StrategyRest> getStrategies(){
+        return this.strategyService.getAllStrategies();
     }
 
-    @GetMapping("analysis/strategies/current")
-    public StrategyEntity getCurrentStrategy(){
-        return strategyRepository.findTopByOrderByActivationDesc();
+    @GetMapping("/strategies/current")
+    public StrategyRest getCurrentStrategy(){
+        return this.strategyService.getCurrentStrategy();
     }
 
-    @PostMapping("analysis/strategy")
-    public StrategyEntity setConfiguration(@Valid @RequestBody StrategyEntity strategyEntity){
-        return strategyRepository.save(strategyEntity);
+    @PostMapping("/strategies")
+    public StrategyRest createStrategy(@Valid @RequestBody StrategyRest strategy){
+        return this.strategyService.createStrategy(strategy);
     }
 }

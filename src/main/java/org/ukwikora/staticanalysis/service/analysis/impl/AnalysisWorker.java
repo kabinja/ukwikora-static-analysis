@@ -1,11 +1,11 @@
-package org.ukwikora.staticanalysis.analysis;
+package org.ukwikora.staticanalysis.service.analysis.impl;
 
 import org.ukwikora.builder.Builder;
 import org.ukwikora.gitloader.GitEngine;
 import org.ukwikora.gitloader.GitEngineFactory;
 import org.ukwikora.gitloader.git.LocalRepo;
 import org.ukwikora.model.Project;
-import org.ukwikora.staticanalysis.model.StrategyEntity;
+import org.ukwikora.staticanalysis.api.StrategyRest;
 import org.ukwikora.staticanalysis.monitoring.State;
 
 import java.io.File;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class AnalysisWorker implements Runnable {
     private final AnalysisServiceImpl service;
-    private StrategyEntity strategyEntity;
+    private StrategyRest strategy;
 
     AnalysisWorker(AnalysisServiceImpl service) {
         this.service = service;
@@ -41,23 +41,23 @@ public class AnalysisWorker implements Runnable {
         }
     }
 
-    void setStrategyEntity(StrategyEntity strategyEntity) {
-        this.strategyEntity = strategyEntity;
+    void setStrategy(StrategyRest strategy) {
+        this.strategy = strategy;
     }
 
     private Set<LocalRepo> cloneProjects() throws Exception {
         Set<LocalRepo> localRepos;
 
-        final GitEngine git = GitEngineFactory.create(strategyEntity.getApi());
-        git.setUrl(strategyEntity.getUrl());
-        git.setToken(strategyEntity.getToken());
+        final GitEngine git = GitEngineFactory.create(strategy.getApi());
+        git.setUrl(strategy.getUrl());
+        git.setToken(strategy.getToken());
 
-        switch (strategyEntity.getLocator()){
+        switch (strategy.getLocator()){
             case ByGroup:
-                localRepos = git.cloneProjectsFromGroup(strategyEntity.getGroupName());
+                localRepos = git.cloneProjectsFromGroup(strategy.getGroupName());
                 break;
             case ByUserName:
-                localRepos = git.cloneProjectsFromUser(strategyEntity.getUsername());
+                localRepos = git.cloneProjectsFromUser(strategy.getUsername());
                 break;
             case ByUrl:
             default:
