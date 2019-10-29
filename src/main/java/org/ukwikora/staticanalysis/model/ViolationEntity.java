@@ -4,24 +4,14 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "violations")
-public class ViolationEntity {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private long id;
+public class ViolationEntity extends AbstractEntity{
     @ManyToOne
+    @JoinColumn(name = "statement_version_id", nullable = false)
     private StatementVersionEntity statement;
     @Column(name = "type", nullable = false)
     private String type;
     @Column(name = "message")
     private String message;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public StatementVersionEntity getStatement() {
         return statement;

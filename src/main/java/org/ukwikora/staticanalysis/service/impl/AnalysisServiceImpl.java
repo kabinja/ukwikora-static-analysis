@@ -1,29 +1,29 @@
-package org.ukwikora.staticanalysis.service.analysis.impl;
+package org.ukwikora.staticanalysis.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ukwikora.model.Project;
+import org.ukwikora.model.*;
 import org.ukwikora.staticanalysis.api.StrategyRest;
-import org.ukwikora.staticanalysis.repository.ProjectRepository;
 import org.ukwikora.staticanalysis.monitoring.State;
 import org.ukwikora.staticanalysis.monitoring.StatusMonitor;
-import org.ukwikora.staticanalysis.service.analysis.AnalysisService;
+import org.ukwikora.staticanalysis.service.AnalysisService;
+import org.ukwikora.staticanalysis.service.ProjectService;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 public class AnalysisServiceImpl implements AnalysisService {
     private final Logger logger = LogManager.getLogger(AnalysisServiceImpl.class);
     private final AnalysisWorker worker;
-    private final ProjectRepository projectRepository;
     private final StatusMonitor monitor;
+    private final ProjectService projectService;
 
     @Autowired
-    public AnalysisServiceImpl(ProjectRepository projectRepository) {
+    public AnalysisServiceImpl(ProjectService projectService) {
+        this.projectService = projectService;
         this.worker = new AnalysisWorker(this);
-        this.projectRepository = projectRepository;
         this.monitor = new StatusMonitor();
     }
 
@@ -45,19 +45,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     @Override
-    public void update(List<Project> projects) {
+    public void update(Set<Project> projects) {
         logger.info("Number of projects analyzed: " + projects.size());
 
-        for(Project project: projects){
-            final String gitUrl = project.getGitUrl();
-            final String localFolder = project.getRootFolder().getAbsolutePath();
-            final String commitId = project.getCommitId();
-            final String date = project.getDate().toString();
-
-            logger.info(gitUrl);
-            logger.info(localFolder);
-            logger.info(commitId);
-            logger.info(date);
+        try {
+            projectService.saveProjects(projects);
+        } catch (Exception e) {
+            logger.error(String.format("Failed to save project: %s", e.getMessage()));
         }
     }
 

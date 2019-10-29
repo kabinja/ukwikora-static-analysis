@@ -1,4 +1,4 @@
-package org.ukwikora.staticanalysis.service.analysis.impl;
+package org.ukwikora.staticanalysis.service.impl;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.ukwikora.staticanalysis.api.StrategyRest;
 import org.ukwikora.staticanalysis.model.StrategyEntity;
 import org.ukwikora.staticanalysis.repository.StrategyRepository;
-import org.ukwikora.staticanalysis.service.analysis.StrategyService;
+import org.ukwikora.staticanalysis.service.StrategyService;
 
 import java.util.Optional;
 import java.util.Set;
@@ -51,7 +51,7 @@ public class StrategyServiceImpl implements StrategyService {
     @Override
     public StrategyRest createStrategy(StrategyRest rest) {
         StrategyEntity entity = new StrategyEntity();
-        BeanUtils.copyProperties(rest, entity);
+        BeanUtils.copyProperties(rest, entity, "id", "activation");
 
         entity = this.strategyRepository.save(entity);
         BeanUtils.copyProperties(entity, rest);

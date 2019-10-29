@@ -4,35 +4,38 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "projects")
-public class ProjectEntity {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private long id;
+public class ProjectEntity extends AbstractEntity {
     @Column(name = "slug", nullable = false)
-    private final String slug;
+    private String slug;
     @Column(name = "name", nullable = false)
-    private final String name;
+    private String name;
     @Column(name = "url")
     private String url;
 
-    public ProjectEntity(String name, String slug){
-        this.name = name;
-        this.slug = slug;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
+    public ProjectEntity(){
     }
 
     public String getSlug() {
         return slug;
     }
 
-    public String getGitUrl() {
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUrl() {
         return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

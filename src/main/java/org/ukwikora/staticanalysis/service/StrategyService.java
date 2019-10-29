@@ -1,4 +1,4 @@
-package org.ukwikora.staticanalysis.service.analysis;
+package org.ukwikora.staticanalysis.service;
 
 import org.ukwikora.staticanalysis.api.StrategyRest;
 

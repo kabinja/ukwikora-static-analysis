@@ -1,4 +1,4 @@
-package org.ukwikora.staticanalysis.service.analysis.impl;
+package org.ukwikora.staticanalysis.service.impl;
 
 import org.ukwikora.builder.Builder;
 import org.ukwikora.gitloader.GitEngine;
@@ -9,10 +9,7 @@ import org.ukwikora.staticanalysis.api.StrategyRest;
 import org.ukwikora.staticanalysis.monitoring.State;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AnalysisWorker implements Runnable {
@@ -29,7 +26,7 @@ public class AnalysisWorker implements Runnable {
             service.updateState(State.Cloning);
             Set<LocalRepo> LocalRepos = cloneProjects();
             service.updateState(State.Analyzing);
-            List<Project> projects = buildProjects(LocalRepos);
+            Set<Project> projects = buildProjects(LocalRepos);
             service.updateState(State.Saving);
             this.service.update(projects);
         }
@@ -67,9 +64,9 @@ public class AnalysisWorker implements Runnable {
         return localRepos;
     }
 
-    private List<Project> buildProjects(Set<LocalRepo> localRepos){
+    private Set<Project> buildProjects(Set<LocalRepo> localRepos){
         Set<File> locations = localRepos.stream().map(LocalRepo::getLocation).collect(Collectors.toSet());
-        List<Project> projects = Builder.build(locations, true);
+        Set<Project> projects = Builder.build(locations, true);
 
         Map<File, LocalRepo> mapping = new HashMap<>(localRepos.size());
         for(LocalRepo localRepo: localRepos){

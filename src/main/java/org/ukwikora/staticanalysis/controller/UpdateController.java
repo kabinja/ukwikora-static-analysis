@@ -3,9 +3,9 @@ package org.ukwikora.staticanalysis.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.ukwikora.staticanalysis.api.StrategyRest;
-import org.ukwikora.staticanalysis.service.analysis.AnalysisService;
+import org.ukwikora.staticanalysis.service.AnalysisService;
 import org.ukwikora.staticanalysis.monitoring.State;
-import org.ukwikora.staticanalysis.service.analysis.StrategyService;
+import org.ukwikora.staticanalysis.service.StrategyService;
 
 import javax.validation.Valid;
 import java.util.Set;

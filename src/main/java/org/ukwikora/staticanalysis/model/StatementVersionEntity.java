@@ -1,25 +1,23 @@
 package org.ukwikora.staticanalysis.model;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "statements_version")
-public class StatementVersionEntity {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private long id;
+public class StatementVersionEntity extends AbstractEntity{
     @ManyToOne
+    @JoinColumn(name = "project_version_id")
     private ProjectVersionEntity project;
     @ManyToOne
+    @JoinColumn(name = "statement_id")
     private StatementEntity statementEntity;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
+    @Column(name = "dead_code")
+    private boolean deadCode;
+    @OneToMany(mappedBy = "statement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ViolationEntity> violations;
+    @OneToMany(mappedBy = "statement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CloneEntity> clones;
 
     public ProjectVersionEntity getProject() {
         return project;
@@ -35,5 +33,13 @@ public class StatementVersionEntity {
 
     public void setStatementEntity(StatementEntity statementEntity) {
         this.statementEntity = statementEntity;
+    }
+
+    public boolean isDeadCode() {
+        return deadCode;
+    }
+
+    public void setDeadCode(boolean deadCode) {
+        this.deadCode = deadCode;
     }
 }

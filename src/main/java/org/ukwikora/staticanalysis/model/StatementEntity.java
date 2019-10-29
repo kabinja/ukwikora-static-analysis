@@ -4,10 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "statements")
-public class StatementEntity {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private long id;
+public class StatementEntity extends AbstractEntity{
     @Column(name = "type", nullable = false)
     private String type;
     @Column(name = "name", nullable = false)
@@ -18,14 +15,6 @@ public class StatementEntity {
     private int endLine;
     @Column(name = "file", nullable = false)
     private String file;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getType() {
         return type;
