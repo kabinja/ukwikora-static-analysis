@@ -2,7 +2,6 @@ package org.ukwikora.staticanalysis.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ukwikora.model.Project;
 import org.ukwikora.model.Statement;
 import org.ukwikora.staticanalysis.model.ProjectVersionEntity;
 import org.ukwikora.staticanalysis.model.StatementEntity;
@@ -37,14 +36,14 @@ public class StatementServiceImpl implements StatementService {
     }
 
     @Override
-    public StatementVersionEntity saveVersion(Project project, ProjectVersionEntity projectVersionEntity, Statement statement) {
+    public StatementVersionEntity saveVersion(ProjectVersionEntity projectVersionEntity, Statement statement) {
         StatementEntity statementEntity = getOrCreate(statement);
 
         StatementVersionEntity statementVersionEntity = new StatementVersionEntity();
 
         statementVersionEntity.setProject(projectVersionEntity);
         statementVersionEntity.setStatementEntity(statementEntity);
-        statementVersionEntity.setDeadCode(statement.getDependencies().size() == 0);
+        statementVersionEntity.setDeadCode(statement.isDeadCode());
 
         return versionRepository.save(statementVersionEntity);
     }

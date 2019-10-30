@@ -7,12 +7,16 @@ import javax.persistence.*;
 public class StatementEntity extends AbstractEntity{
     @Column(name = "type", nullable = false)
     private String type;
+
     @Column(name = "name", nullable = false)
     private String name;
+
     @Column(name = "start_line", nullable = false)
     private int startLine;
+
     @Column(name = "end_line", nullable = false)
     private int endLine;
+
     @Column(name = "file", nullable = false)
     private String file;
 

@@ -16,21 +16,29 @@ public class StrategyEntity extends AbstractEntity{
 
     @Column(name = "name", unique = true, nullable = false)
     private String name;
+
     @Column(name= "api", nullable = false)
     private Api api;
+
     @Column(name = "locator", nullable = false)
     private Locator locator;
+
     @Column(nullable = false)
     private String url;
+
     @Column(name = "token")
     private String token;
+
     @Column(name = "user_name")
     private String username;
+
     @Column(name = "group_name")
     private String groupName;
+
     @ElementCollection
     @CollectionTable(name = "project_names")
     private List<String> projectNames;
+
     @UpdateTimestamp()
     private Date activation;
 

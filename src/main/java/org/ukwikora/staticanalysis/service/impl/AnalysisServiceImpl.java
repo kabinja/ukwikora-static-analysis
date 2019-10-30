@@ -4,13 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.ukwikora.analytics.Clones;
 import org.ukwikora.model.*;
 import org.ukwikora.staticanalysis.api.StrategyRest;
 import org.ukwikora.staticanalysis.monitoring.State;
 import org.ukwikora.staticanalysis.monitoring.StatusMonitor;
-import org.ukwikora.staticanalysis.service.AnalysisService;
-import org.ukwikora.staticanalysis.service.ProjectService;
+import org.ukwikora.staticanalysis.service.*;
 
+import javax.transaction.Transactional;
 import java.util.Set;
 
 @Service
@@ -18,11 +19,16 @@ public class AnalysisServiceImpl implements AnalysisService {
     private final Logger logger = LogManager.getLogger(AnalysisServiceImpl.class);
     private final AnalysisWorker worker;
     private final StatusMonitor monitor;
+
     private final ProjectService projectService;
+    private final CloneService cloneService;
+    private final StatisticsService statisticsService;
 
     @Autowired
-    public AnalysisServiceImpl(ProjectService projectService) {
+    public AnalysisServiceImpl(ProjectService projectService, CloneService cloneService, StatisticsService statisticsService) {
         this.projectService = projectService;
+        this.cloneService = cloneService;
+        this.statisticsService = statisticsService;
         this.worker = new AnalysisWorker(this);
         this.monitor = new StatusMonitor();
     }
@@ -45,11 +51,14 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     @Override
-    public void update(Set<Project> projects) {
+    @Transactional
+    public void update(Set<Project> projects, Clones<UserKeyword> clones) {
         logger.info("Number of projects analyzed: " + projects.size());
 
         try {
-            projectService.saveProjects(projects);
+            final ProjectEntityMap projectEntityMap = projectService.saveProjects(projects);
+            cloneService.saveClones(projectEntityMap, clones);
+            statisticsService.saveStatistics(projectEntityMap);
         } catch (Exception e) {
             logger.error(String.format("Failed to save project: %s", e.getMessage()));
         }

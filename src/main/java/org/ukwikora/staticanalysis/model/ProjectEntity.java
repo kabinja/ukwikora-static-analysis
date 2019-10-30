@@ -7,8 +7,10 @@ import javax.persistence.*;
 public class ProjectEntity extends AbstractEntity {
     @Column(name = "slug", nullable = false)
     private String slug;
+
     @Column(name = "name", nullable = false)
     private String name;
+
     @Column(name = "url")
     private String url;
 

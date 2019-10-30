@@ -8,8 +8,10 @@ public class ViolationEntity extends AbstractEntity{
     @ManyToOne
     @JoinColumn(name = "statement_version_id", nullable = false)
     private StatementVersionEntity statement;
+
     @Column(name = "type", nullable = false)
     private String type;
+
     @Column(name = "message")
     private String message;
 

@@ -9,15 +9,22 @@ public class StatementVersionEntity extends AbstractEntity{
     @ManyToOne
     @JoinColumn(name = "project_version_id")
     private ProjectVersionEntity project;
+
     @ManyToOne
     @JoinColumn(name = "statement_id")
     private StatementEntity statementEntity;
+
     @Column(name = "dead_code")
     private boolean deadCode;
+
     @OneToMany(mappedBy = "statement", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ViolationEntity> violations;
-    @OneToMany(mappedBy = "statement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CloneEntity> clones;
+
+    @ManyToMany
+    @JoinTable(name = "clone_cluster_statements",
+            joinColumns = @JoinColumn(name = "statement_version_id"),
+            inverseJoinColumns = @JoinColumn(name = "clone_cluster_id"))
+    private Set<StatementVersionEntity> statements;
 
     public ProjectVersionEntity getProject() {
         return project;

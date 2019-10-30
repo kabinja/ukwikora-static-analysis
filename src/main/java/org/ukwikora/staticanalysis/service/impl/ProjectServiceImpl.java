@@ -7,11 +7,11 @@ import org.ukwikora.staticanalysis.model.ProjectVersionEntity;
 import org.ukwikora.staticanalysis.model.StatementVersionEntity;
 import org.ukwikora.staticanalysis.repository.ProjectRepository;
 import org.ukwikora.staticanalysis.repository.ProjectVersionRepository;
+import org.ukwikora.staticanalysis.service.ProjectEntityMap;
 import org.ukwikora.staticanalysis.service.ProjectService;
 import org.ukwikora.staticanalysis.service.StatementService;
 import org.ukwikora.utils.StringUtils;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -29,42 +29,45 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Transactional
-    public void saveProjects(Set<Project> projects) throws Exception {
-        final Map<Project, ProjectEntity> projectEntityMap = getProjectEntities(projects);
+    public ProjectEntityMap saveProjects(Set<Project> projects) throws Exception {
+        ProjectEntityMap entityMap = new ProjectEntityMap();
 
         for(Project project: projects){
-            if(projectVersionRepository.findByCommitId(project.getCommitId()).isPresent()){
-                continue;
-            }
+            getProjectEntity(project, entityMap);
+            getProjectVersionEntity(project, entityMap);
+            getStatements(project, entityMap);
+        }
 
-            final ProjectVersionEntity projectVersionEntity = createProjectVersionEntity(project, projectEntityMap.get(project));
-            final Map<Statement, StatementVersionEntity> statementEntityMap = getStatements(project, projectVersionEntity);
+        setDependencies(entityMap);
+
+        return entityMap;
+    }
+
+    private void getStatements(Project project, ProjectEntityMap entityMap) {
+        ProjectVersionEntity projectVersionEntity = entityMap.getProjectVersionEntity(project);
+
+        for(Statement statement: getStatements(project)){
+            final StatementVersionEntity statementVersionEntity = statementService.saveVersion(projectVersionEntity, statement);
+            entityMap.setStatementVersionEntity(statement, statementVersionEntity);
         }
     }
 
-    private Map<Statement, StatementVersionEntity> getStatements(Project project, ProjectVersionEntity projectVersionEntity) {
-        Set<Statement> statements = getStatements(project);
-        Map<Statement, StatementVersionEntity> statementMap = new HashMap<>(statements.size());
+    private void getProjectVersionEntity(Project project, ProjectEntityMap entityMap) {
+        final Optional<ProjectVersionEntity> version = projectVersionRepository.findByCommitId(project.getCommitId());
 
-        for(Statement statement: statements){
-            final StatementVersionEntity statementVersionEntity = statementService.saveVersion(project, projectVersionEntity, statement);
-            statementMap.put(statement, statementVersionEntity);
+        if(version.isPresent()){
+            entityMap.setProjectVersionEntity(project, version.get());
         }
+        else{
+            ProjectVersionEntity projectVersionEntity = new ProjectVersionEntity();
 
-        return statementMap;
-    }
+            projectVersionEntity.setProjectEntity(entityMap.getProjectEntity(project));
+            projectVersionEntity.setCommitId(project.getCommitId());
+            projectVersionEntity.setCommitDate(project.getDate());
 
-    private ProjectVersionEntity createProjectVersionEntity(Project project, ProjectEntity projectEntity) {
-        ProjectVersionEntity projectVersionEntity = new ProjectVersionEntity();
-
-        projectVersionEntity.setProjectEntity(projectEntity);
-        projectVersionEntity.setCommitId(project.getCommitId());
-        projectVersionEntity.setCommitDate(project.getDate());
-        projectVersionEntity.setLinesOfCode(project.getLoc());
-        projectVersionEntity.setDeadCode(project.getDeadLoc());
-
-        return projectVersionRepository.save(projectVersionEntity);
+            final ProjectVersionEntity save = projectVersionRepository.save(projectVersionEntity);
+            entityMap.setProjectVersionEntity(project, save);
+        }
     }
 
     private Set<Statement> getStatements(Project project){
@@ -77,28 +80,41 @@ public class ProjectServiceImpl implements ProjectService {
         return statements;
     }
 
-    private Map<Project, ProjectEntity> getProjectEntities(Set<Project> projects) throws Exception {
-        Map<Project, ProjectEntity> projectEntityMap = new HashMap<>(projects.size());
+    private void getProjectEntity(Project project, ProjectEntityMap entityMap) throws Exception {
+        final Optional<ProjectEntity> found = projectRepository.findFirstByUrlAndName(
+                project.getGitUrl(),
+                project.getName());
 
-        for(Project project: projects){
-            final Optional<ProjectEntity> found = projectRepository.findFirstByUrlAndName(
-                    project.getGitUrl(),
-                    project.getName());
+        if(found.isPresent()){
+            entityMap.setProjectEntity(project, found.get());
+        }
+        else{
+            ProjectEntity projectEntity = new ProjectEntity();
 
-            if(found.isPresent()){
-                projectEntityMap.put(project, found.get());
+            projectEntity.setName(project.getName());
+            projectEntity.setSlug(StringUtils.toBeautifulUrl(project.getName(), ""));
+            projectEntity.setUrl(project.getGitUrl());
+
+            entityMap.setProjectEntity(project, projectRepository.save(projectEntity));
+        }
+    }
+
+    private void setDependencies(ProjectEntityMap entityMap) {
+        Set<ProjectVersionEntity> projectEntities = new HashSet<>();
+
+        for(Project child: entityMap.getProjects()){
+            final ProjectVersionEntity childEntity = entityMap.getProjectVersionEntity(child);
+
+            for(Project parent: child.getDependencies()){
+                final ProjectVersionEntity parentEntity = entityMap.getProjectVersionEntity(parent);
+
+                childEntity.addParent(parentEntity);
+                parentEntity.addChild(childEntity);
             }
-            else{
-                ProjectEntity projectEntity = new ProjectEntity();
 
-                projectEntity.setName(project.getName());
-                projectEntity.setSlug(StringUtils.toBeautifulUrl(project.getName(), ""));
-                projectEntity.setUrl(project.getGitUrl());
-
-                projectEntityMap.put(project, projectRepository.save(projectEntity));
-            }
+            projectEntities.add(childEntity);
         }
 
-        return projectEntityMap;
+        projectVersionRepository.saveAll(projectEntities);
     }
 }

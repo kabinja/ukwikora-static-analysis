@@ -1,5 +1,7 @@
 package org.ukwikora.staticanalysis.model;
 
+import org.ukwikora.model.Project;
+
 import javax.persistence.*;
 import java.io.Serializable;
 

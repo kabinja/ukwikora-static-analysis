@@ -1,10 +1,13 @@
 package org.ukwikora.staticanalysis.service.impl;
 
+import org.ukwikora.analytics.CloneDetection;
+import org.ukwikora.analytics.Clones;
 import org.ukwikora.builder.Builder;
 import org.ukwikora.gitloader.GitEngine;
 import org.ukwikora.gitloader.GitEngineFactory;
 import org.ukwikora.gitloader.git.LocalRepo;
 import org.ukwikora.model.Project;
+import org.ukwikora.model.UserKeyword;
 import org.ukwikora.staticanalysis.api.StrategyRest;
 import org.ukwikora.staticanalysis.monitoring.State;
 
@@ -24,11 +27,12 @@ public class AnalysisWorker implements Runnable {
     public void run() {
         try{
             service.updateState(State.Cloning);
-            Set<LocalRepo> LocalRepos = cloneProjects();
+            final Set<LocalRepo> LocalRepos = cloneProjects();
             service.updateState(State.Analyzing);
-            Set<Project> projects = buildProjects(LocalRepos);
+            final Set<Project> projects = buildProjects(LocalRepos);
+            final Clones<UserKeyword> clones = findClones(projects);
             service.updateState(State.Saving);
-            this.service.update(projects);
+            this.service.update(projects, clones);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -86,5 +90,9 @@ public class AnalysisWorker implements Runnable {
         }
 
         return projects;
+    }
+
+    private Clones<UserKeyword> findClones(Set<Project> projects){
+        return CloneDetection.findClones(projects, UserKeyword.class);
     }
 }
