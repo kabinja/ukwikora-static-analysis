@@ -100,21 +100,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private void setDependencies(ProjectEntityMap entityMap) {
-        Set<ProjectVersionEntity> projectEntities = new HashSet<>();
-
         for(Project child: entityMap.getProjects()){
             final ProjectVersionEntity childEntity = entityMap.getProjectVersionEntity(child);
 
             for(Project parent: child.getDependencies()){
-                final ProjectVersionEntity parentEntity = entityMap.getProjectVersionEntity(parent);
-
-                childEntity.addParent(parentEntity);
-                parentEntity.addChild(childEntity);
+                childEntity.addDependency(entityMap.getProjectVersionEntity(parent));
             }
-
-            projectEntities.add(childEntity);
         }
-
-        projectVersionRepository.saveAll(projectEntities);
     }
 }

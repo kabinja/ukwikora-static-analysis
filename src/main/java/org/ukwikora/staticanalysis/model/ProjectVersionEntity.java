@@ -23,21 +23,13 @@ public class ProjectVersionEntity extends AbstractEntity{
 
     @ManyToMany
     @JoinTable(name = "dependencies",
-        joinColumns = @JoinColumn(name = "parent"),
-        inverseJoinColumns = @JoinColumn(name = "child")
+        joinColumns = @JoinColumn(name = "child"),
+        inverseJoinColumns = @JoinColumn(name = "parent")
     )
-    private Set<ProjectVersionEntity> children;
-
-    @ManyToMany
-    @JoinTable(name = "dependencies",
-            joinColumns = @JoinColumn(name = "child"),
-            inverseJoinColumns = @JoinColumn(name = "parent")
-    )
-    private Set<ProjectVersionEntity> parents;
+    private Set<ProjectVersionEntity> dependencies;
 
     public ProjectVersionEntity(){
-        this.children = new HashSet<>();
-        this.parents = new HashSet<>();
+        this.dependencies = new HashSet<>();
     }
 
     public String getCommitId() {
@@ -72,27 +64,16 @@ public class ProjectVersionEntity extends AbstractEntity{
         this.statisticsEntity = statisticsEntity;
     }
 
-    public Set<ProjectVersionEntity> getChildren() {
-        return children;
-    }
 
-    public void setChildren(Set<ProjectVersionEntity> children) {
-        this.children = children;
-    }
-
-    public void addChild(ProjectVersionEntity child) {
-        this.children.add(child);
-    }
-
-    public Set<ProjectVersionEntity> getParents() {
-        return parents;
+    public Set<ProjectVersionEntity> getDependencies() {
+        return dependencies;
     }
 
     public void setParents(Set<ProjectVersionEntity> parents) {
-        this.parents = parents;
+        this.dependencies = dependencies;
     }
 
-    public void addParent(ProjectVersionEntity parent) {
-        this.parents.add(parent);
+    public void addDependency(ProjectVersionEntity dependency){
+        this.dependencies.add(dependency);
     }
 }
